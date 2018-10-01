@@ -92,7 +92,7 @@ class Flecha(Parser):
         return t
 
     t_ignore_COMMENT = r'--.*'
-    t_ignore = ' \t'
+    t_ignore = ' \t\r'
 
     precedence = (
     	('left','SEMICOLON'),
@@ -129,7 +129,7 @@ class Flecha(Parser):
 
 data = \
     '''
-	-- Variables
+	-- Variables                     def A = 1
 	def x3 = 'a'
 	def x3 = "hola"
 '''
