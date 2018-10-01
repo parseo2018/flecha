@@ -94,7 +94,18 @@ class Flecha(Parser):
     t_ignore_COMMENT = r'--.*'
     t_ignore = ' \t'
 
-    precedence = (( ))
+    precedence = (
+    	('left','SEMICOLON'),
+    	('IF', 'CASE', 'LET', 'LAMBDA'),
+    	('left','OR'),
+    	('left','AND'),
+    	('right','NOT'),
+    	('left','EQ','NE','GE','LE','GT','LT'),
+    	('left','PLUS', 'MINUS'),
+    	('left','TIMES'),
+    	('left','DIV', 'MOD'),
+    	('right', 'UMINUS')
+    )
 
     def t_newline(self, t):
         r'''\n+'''
