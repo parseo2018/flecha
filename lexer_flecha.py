@@ -97,11 +97,11 @@ class Flecha(Parser):
 
     precedence = (
     	('left','SEMICOLON'),
-    	('IF', 'CASE', 'LET', 'LAMBDA'),
+    	('left','IF', 'CASE', 'LET', 'LAMBDA'),
     	('left','OR'),
     	('left','AND'),
     	('right','NOT'),
-    	('left','EQ','NE','GE','LE','GT','LT'),
+    	('nonassoc','EQ','NE','GE','LE','GT','LT'),
     	('left','PLUS', 'MINUS'),
     	('left','TIMES'),
     	('left','DIV', 'MOD'),
@@ -124,6 +124,10 @@ class Flecha(Parser):
 
     def p_not_empty_program(self, p):
     	''' not_empty_program : program definition '''
+    	p[0] = p[1].push(p[2])
+
+    #def p_definition(self, p):
+    #	''' definition : DEF LOWERID params DEFEQ expression '''
 
     def t_newline(self, t):
         r'''\n+'''
