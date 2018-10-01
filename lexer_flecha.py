@@ -6,6 +6,7 @@ import os
 sys.path.insert(0, '../..')
 
 from parser import Parser
+from ast_representation import *
 
 class Flecha(Parser):
 
@@ -106,6 +107,23 @@ class Flecha(Parser):
     	('left','DIV', 'MOD'),
     	('right', 'UMINUS')
     )
+
+    # ******************* Program *******************
+    def p_program(self, p):
+    	''' program : empty_program
+    				| not_empty_program '''
+    	p[0] = p[1]
+
+    def p_empty(self, p):
+    	''' empty : '''
+    	pass
+
+    def p_empty_program(self, p):
+    	''' empty_program : empty '''
+    	p[0] = Program(children=[])
+
+    def p_not_empty_program(self, p):
+    	''' not_empty_program : program definition '''
 
     def t_newline(self, t):
         r'''\n+'''
