@@ -73,12 +73,12 @@ class Flecha(Parser):
         return t
 
     def t_CHAR(self, t):
-    	r'''[\'].*.[\']'''
+        r'''[\'].*.[\']'''
 
     	return t
 
     def t_STRING(self, t):
-    	r'''[\"].*.[\"]'''
+        r'''\"(.*?)\"'''
 
     	return t
 
@@ -97,11 +97,12 @@ class Flecha(Parser):
 
     precedence = (
     	('left','SEMICOLON'),
-    	('left','IF', 'CASE', 'LET', 'LAMBDA'),
+        ('left','IF', 'CASE', 'LET', 'LAMBDA'),
+        ('left','THEN', 'ELSE', 'ELIF'),
     	('left','OR'),
     	('left','AND'),
     	('right','NOT'),
-    	('nonassoc','EQ','NE','GE','LE','GT','LT'),
+        ('nonassoc','EQ','NE','GE','LE','GT','LT'),
     	('left','PLUS', 'MINUS'),
     	('left','TIMES'),
     	('left','DIV', 'MOD'),
@@ -152,8 +153,9 @@ class Flecha(Parser):
 data = \
     '''
 	-- Variables                     def A = 1
-	def x3 = 'a'
-	def x3 = "hola"
+    --    if  True then x3 = "a" else x3 = "b"
+    if  True then x3 = "a" else x3 = "b"
+    --if True then False else True
 '''
 
 flecha = Flecha()
