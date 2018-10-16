@@ -127,8 +127,64 @@ class Flecha(Parser):
     	''' not_empty_program : program definition '''
     	p[0] = p[1].push(p[2])
 
-    #def p_definition(self, p):
-    #	''' definition : DEF LOWERID params DEFEQ expression '''
+    # ******************* Definition *******************
+
+    def p_definition(self, p):
+    	''' definition : DEF LOWERID params DEFEQ expression '''
+        p[0] = Definition(p[2],p[3],p[5])
+
+    # ******************* Params *******************
+
+    def p_empty_params(self, p):
+        ''' empty : '''
+        p[0] = Parameters(children=[])
+
+    def p_params(self, p):
+        ''' params : empty_params 
+                   | not_empty_params
+        '''
+        p[0] = p[1]
+
+    def p_not_empty_params(self, p):
+        ''' not_empty_params : LOWEID params '''
+        p[0] = p[2].push(p[1])
+
+    #outer : Diego
+    def p_expression(self, p):
+        ''' expression : outer_expression
+                       | secuence_expression '''
+        p[0] = p[1]
+
+    def p_secuence_expression(self, p):
+        ''' secuence_expression : secuence_expression SEMICOLON expression '''
+        p[0] = SecuenceExpression(p[1], p[3])
+
+    def p_outer_expression(self, p):
+        ''' outer_expression : if_expression
+                             | case_expression
+                             | let_expression
+                             | lamba_expression
+                             | inner_expression '''
+        p[0] = p[1]
+
+
+    def p_if_expression(self, p):
+        ''' if_expression : IF inner_expression THEN inner_expression branch_else '''
+        p[0] = IfExpression(p[2], p[4], p[5])
+
+    def p_case_expression(self, p):
+        ''' case_expression : CASE inner_expression branch_case '''
+        p[0] = CaseExpression(p[2], p[3])
+
+    def p_let_expression(self, p):    
+        ''' let_expression : LET LOWERID params DEFEQ inner_expression IN outer_expression '''
+        p[0] = LetExpression(p[2], p[3], p[5], p[7])
+
+    def p_lambda_expression(self, p):    
+        ''' lambda_expression : LAMBDA params ARROW outer_expression'''
+        p[0] = LambdaExpression(p[2], p[4])
+
+        
 
     def t_newline(self, t):
         r'''\n+'''
@@ -154,8 +210,10 @@ data = \
     '''
 	-- Variables                     def A = 1
     --    if  True then x3 = "a" else x3 = "b"
-    if  True then x3 = "a" else x3 = "b"
+    --if  True then x3 = "a" else x3 = "b"
     --if True then False else True
+    --2 * 3 + 3
+    --IF IF IF
 '''
 
 flecha = Flecha()
