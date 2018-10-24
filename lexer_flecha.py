@@ -184,11 +184,44 @@ class Flecha(Parser):
         ''' lambda_expression : LAMBDA params ARROW outer_expression'''
         p[0] = LambdaExpression(p[2], p[4])
 
-        
+    def p_inner_expression(self, p):
+        ''' inner_expression : apply_expression
+                             | binary_expression
+                             | unary_expression '''
+        p[0] = p[1]
+
+    def p_apply_expression(self, p):
+        ''' apply_expression : apply_atomic_expression 
+                             | atomic_expression '''
+        p[0] = p[1]
+
+    def p_atomic_expression(self, p):
+    ''' atomic_expression : non_paren_atomic
+                          | paren_atomic '''
+    p[0] = p[1]
+    
+    def p_non_paren_atomic(self, p):
+    ''' non_paren_atomic : non_paren_atomic '''
+    p[0] = AtomicExpression(p[1])
+
+    def p_paren_atomic(self, p):
+    ''' paren_atomic : LPAREN paren_atomic RPAREN'''
+    p[0] = ParenAtomicExpression(p[2])
+
+    def p_apply_atomic_expression(self, p):    
+    ''' empty_program : apply_expression atomic_expression '''
+    p[0] = AppyAtomicExpression(p[1], p[2])
+
+    def p_binary_expression(self, p):
+        ''' binary_expression : inner_expression binary_op inner_expression '''
+        p[0] = BinaryExpression(p[1], p[2], p[3])
+
+    def p_unary_expression(self, p):
+        ''' unary_expression : unary_op inner_expression'''
+        p[0] = UnaryExpression(p[1], p[2]) 
 
     def t_newline(self, t):
         r'''\n+'''
-
         t.lexer.lineno += t.value.count('\n')
 
     def t_error(self, t):
