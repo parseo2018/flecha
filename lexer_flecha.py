@@ -75,12 +75,12 @@ class Flecha(Parser):
     def t_CHAR(self, t):
         r'''[\'].*.[\']'''
 
-    	return t
+        return t
 
     def t_STRING(self, t):
         r'''\"(.*?)\"'''
 
-    	return t
+        return t
 
     def t_NUMBER(self, t):
         r'''\d+'''
@@ -106,7 +106,7 @@ class Flecha(Parser):
     	('left','PLUS', 'MINUS'),
     	('left','TIMES'),
     	('left','DIV', 'MOD'),
-    	('right', 'UMINUS')
+    	#('right', 'UMINUS')
     )
 
     # ******************* Program *******************
@@ -124,101 +124,107 @@ class Flecha(Parser):
     	p[0] = Program(children=[])
 
     def p_not_empty_program(self, p):
-    	''' not_empty_program : program definition '''
-    	p[0] = p[1].push(p[2])
+        ''' not_empty_program :  '''
+        #''' not_empty_program : program definition_with_params 
+        #                      | program definition_without_params '''
+        #p[0] = p[1].push(p[2])
 
     # ******************* Definition *******************
 
-    def p_definition(self, p):
-    	''' definition : DEF LOWERID params DEFEQ expression '''
-        p[0] = Definition(p[2],p[3],p[5])
+    def p_definition_without_params(self, p):
+        ''' definition_without_params : '''#DEF LOWERID empty_params DEFEQ expression '''
+        #p[0] = Definition(children=[p[2],p[5]])
+
+    def p_definition_with_params(self, p):
+        ''' definition_with_params : '''#DEF LOWERID params DEFEQ expression '''
+        #p[0] = Definition(children=p[2] + [LambdaExpression(children=[p[3],p[5]])])
 
     # ******************* Params *******************
 
     def p_empty_params(self, p):
-        ''' empty : '''
-        p[0] = Parameters(children=[])
+        ''' empty_params : '''#empty '''
+        #p[0] = Parameters(children=[])
 
     def p_params(self, p):
-        ''' params : empty_params 
-                   | not_empty_params
-        '''
-        p[0] = p[1]
+        ''' params : '''#empty_params 
+                   #| not_empty_params
+        #'''
+        #p[0] = p[1]
 
     def p_not_empty_params(self, p):
-        ''' not_empty_params : LOWEID params '''
-        p[0] = p[2].push(p[1])
+        ''' not_empty_params : '''#LOWERID params '''
+        #p[0] = Parameters() p[2].push(p[1])
 
     #outer : Diego
     def p_expression(self, p):
-        ''' expression : outer_expression
-                       | secuence_expression '''
-        p[0] = p[1]
+        ''' expression : '''#outer_expression
+                       #| secuence_expression '''
+        #p[0] = p[1]
 
     def p_secuence_expression(self, p):
-        ''' secuence_expression : secuence_expression SEMICOLON expression '''
-        p[0] = SecuenceExpression(p[1], p[3])
+        ''' secuence_expression : '''#secuence_expression SEMICOLON expression '''
+        #p[0] = SecuenceExpression(p[1], p[3])
 
     def p_outer_expression(self, p):
-        ''' outer_expression : if_expression
-                             | case_expression
-                             | let_expression
-                             | lamba_expression
-                             | inner_expression '''
-        p[0] = p[1]
+        ''' outer_expression : '''#if_expression
+                             #| case_expression
+                             #| let_expression
+                             #| lamba_expression
+                             #| inner_expression '''
+        #p[0] = p[1]
 
 
     def p_if_expression(self, p):
-        ''' if_expression : IF inner_expression THEN inner_expression branch_else '''
-        p[0] = IfExpression(p[2], p[4], p[5])
+        ''' if_expression : '''#IF inner_expression THEN inner_expression branch_else '''
+        #p[0] = IfExpression(p[2], p[4], p[5])
 
     def p_case_expression(self, p):
-        ''' case_expression : CASE inner_expression branch_case '''
-        p[0] = CaseExpression(p[2], p[3])
+        ''' case_expression : '''#CASE inner_expression branch_case '''
+        #p[0] = CaseExpression(p[2], p[3])
 
     def p_let_expression(self, p):    
-        ''' let_expression : LET LOWERID params DEFEQ inner_expression IN outer_expression '''
-        p[0] = LetExpression(p[2], p[3], p[5], p[7])
+        ''' let_expression : '''#LET LOWERID params DEFEQ inner_expression IN outer_expression '''
+        #p[0] = LetExpression(p[2], p[3], p[5], p[7])
 
     def p_lambda_expression(self, p):    
-        ''' lambda_expression : LAMBDA params ARROW outer_expression'''
-        p[0] = LambdaExpression(p[2], p[4])
+        ''' lambda_expression : '''#LAMBDA params ARROW outer_expression'''
+        #p[0] = LambdaExpression(p[2], p[4])
 
     def p_inner_expression(self, p):
-        ''' inner_expression : apply_expression
-                             | binary_expression
-                             | unary_expression '''
-        p[0] = p[1]
+        ''' inner_expression : '''#apply_expression
+                             #| binary_expression
+                             #| unary_expression '''
+        #p[0] = p[1]
 
     def p_apply_expression(self, p):
-        ''' apply_expression : apply_atomic_expression 
-                             | atomic_expression '''
-        p[0] = p[1]
+        ''' apply_expression : '''#apply_atomic_expression 
+                             #| atomic_expression '''
+        #p[0] = p[1]
 
     def p_atomic_expression(self, p):
-    ''' atomic_expression : non_paren_atomic
-                          | paren_atomic '''
-    p[0] = p[1]
-    
+        ''' atomic_expression : '''#non_paren_atomic
+                              #| paren_atomic '''
+        #p[0] = p[1]
+
     def p_non_paren_atomic(self, p):
-    ''' non_paren_atomic : non_paren_atomic '''
-    p[0] = AtomicExpression(p[1])
+        ''' non_paren_atomic : '''#non_paren_atomic '''
+        #p[0] = AtomicExpression(p[1])
 
     def p_paren_atomic(self, p):
-    ''' paren_atomic : LPAREN paren_atomic RPAREN'''
-    p[0] = ParenAtomicExpression(p[2])
+        ''' paren_atomic : '''#LPAREN paren_atomic RPAREN'''
+        #p[0] = ParenAtomicExpression(p[2])
 
-    def p_apply_atomic_expression(self, p):    
-    ''' empty_program : apply_expression atomic_expression '''
-    p[0] = AppyAtomicExpression(p[1], p[2])
+    def p_apply_atomic_expression(self, p):
+        ''' empty_program : '''#apply_expression atomic_expression '''
+        #p[0] = AppyAtomicExpression(p[1], p[2])
 
     def p_binary_expression(self, p):
-        ''' binary_expression : inner_expression binary_op inner_expression '''
-        p[0] = BinaryExpression(p[1], p[2], p[3])
+        ''' binary_expression : '''#inner_expression binary_op inner_expression '''
+        #p[0] = BinaryExpression(p[1], p[2], p[3])
 
     def p_unary_expression(self, p):
-        ''' unary_expression : unary_op inner_expression'''
-        p[0] = UnaryExpression(p[1], p[2]) 
+        ''' unary_expression : '''#unary_op inner_expression'''
+        #p[0] = UnaryExpression(p[1], p[2]) 
 
     def t_newline(self, t):
         r'''\n+'''
@@ -247,17 +253,21 @@ data = \
     --if True then False else True
     --2 * 3 + 3
     --IF IF IF
+
+    --def a b c = a + b + c
 '''
 
 flecha = Flecha()
-flecha.lexer.input(data)
+#flecha.lexer.input(data)
 
-while True:
-    tok = flecha.lexer.token()
-    if not tok:
-        break  # No more input
-    print (tok)
+#while True:
+#    tok = flecha.lexer.token()
+#    if not tok:
+#        break  # No more input
+#    print (tok)
 
+program = flecha.yacc.parse(data)
 
-
+print("------------------------------- AST from input program ------------------------------- ")
+print(program)
 			

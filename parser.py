@@ -22,7 +22,7 @@ class Parser:
 
       # Build the lexer and parser
       self.lexer = lex.lex(module=self, debug=self.debug)
-      #self.yacc = yacc.yacc(module=self, debug=self.debug, debugfile=self.debugfile, tabmodule=self.tabmodule)
+      self.yacc = yacc.yacc(module=self, debug=self.debug, debugfile=self.debugfile, tabmodule=self.tabmodule)
 
   def run(self):
     while 1:

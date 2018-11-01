@@ -11,10 +11,21 @@ class Node:
 	  		self.children = [ ]
 	  		self.leaf = leaf
 
+	def __str__(self, level=0):
+		ret = "  "*level+ "[" +str(self.typeNode)
+		for child in self.children:
+			ret += child.__str__(level+1)
+		ret += "  "*level+ "] \n"
+		return ret
+
 class Program(Node):
 	def __init__(self,children=[],leaf=None):
-		Node.__init__(self,'Program',children,leaf)
+		Node.__init__(self,'',children,leaf)
 
 	def push(self,child):
 		self.children = [child] + self.children
 		return self
+
+class Definition(Node):
+	def __init__(self, children=[], leaf=None):
+		Node.__init__(self, 'Def', children, leaf)
