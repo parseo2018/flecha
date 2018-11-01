@@ -131,7 +131,7 @@ class Flecha(Parser):
 
     def p_definition(self, p):
     	''' definition : DEF LOWERID params DEFEQ expression '''
-        p[0] = Definition(p[2],p[3],p[5])
+        p[0] = Definition([p[2],p[3],p[5]])
 
     # ******************* Params *******************
 
@@ -196,21 +196,21 @@ class Flecha(Parser):
         p[0] = p[1]
 
     def p_atomic_expression(self, p):
-    ''' atomic_expression : non_paren_atomic
-                          | paren_atomic '''
-    p[0] = p[1]
+        ''' atomic_expression : non_paren_atomic
+                              | paren_atomic '''
+        p[0] = p[1]
     
     def p_non_paren_atomic(self, p):
-    ''' non_paren_atomic : non_paren_atomic '''
-    p[0] = AtomicExpression(p[1])
+        ''' non_paren_atomic : non_paren_atomic '''
+        p[0] = AtomicExpression(p[1])
 
     def p_paren_atomic(self, p):
-    ''' paren_atomic : LPAREN paren_atomic RPAREN'''
-    p[0] = ParenAtomicExpression(p[2])
+        ''' paren_atomic : LPAREN paren_atomic RPAREN'''
+        p[0] = ParenAtomicExpression(p[2])
 
-    def p_apply_atomic_expression(self, p):    
-    ''' empty_program : apply_expression atomic_expression '''
-    p[0] = AppyAtomicExpression(p[1], p[2])
+    def p_apply_atomic_expression(self, p):
+        ''' empty_program : apply_expression atomic_expression '''
+        p[0] = AppyAtomicExpression(p[1], p[2])
 
     def p_binary_expression(self, p):
         ''' binary_expression : inner_expression binary_op inner_expression '''

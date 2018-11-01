@@ -1,8 +1,8 @@
 import sys, os
 sys.path.insert(0,"../..")
 
-import ply.yacc as yacc
-import ply.lex as lex
+from ply import yacc as yacc
+from ply import lex as lex
 
 class Parser:
 
