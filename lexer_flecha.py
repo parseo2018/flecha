@@ -73,13 +73,15 @@ class Flecha(Parser):
         return t
 
     def t_CHAR(self, t):
-        r'''[\'].*.[\']'''
+        r'''(\'(.*?)\')'''
 
+        t.value = t.value[1:-1]
         return t
 
     def t_STRING(self, t):
         r'''\"(.*?)\"'''
 
+        t.value = t.value[1:-1]
         return t
 
     def t_NUMBER(self, t):
@@ -215,6 +217,8 @@ class Flecha(Parser):
     def p_char_expression(self, p):
         ''' char_expression : CHAR
         '''
+        p[1] = str(ord(p[1])) if p[1] != '' else p[1]
+
         p[0] = ExpressionAtomic("ExprChar", p[1])
 
 
@@ -277,38 +281,21 @@ data = \
 
 data01 = \
     '''
-    -- Numeros
-def uno = 1
-def dos =2--comentario
-def tres= 3  -- otro comentario
-def
-cuatro=4--comentario
-def cinco = 5 def seis = 6def siete = 7
-  def
-    ocho
-      =
-         8 def
-nueve
-=9
-def cero=0
-def cerocero=00
-def cerocerocero=000
-def def_=10
-def ifthenelse=11
-def p_r_u_e_b_a=1987654321
-def camelCase=12
-def x1 = 11
-def x2 = 12
+    def a = 'a' def z = 'z' def a_ = 'A' def z_ = 'z'
+def cero = '0' def nueve = '9' def espacio = ' ' def tab = '\t'
+def cr = '\r' def lf = '\n' def comilla = '\'' def doble_comilla = '\"'
+def contrabarra = '\\' def igual = '=' def lparen = '(' def rparen = ')'
+-- Caracteres
 '''
 
 flecha = Flecha()
-#flecha.lexer.input(data)
+flecha.lexer.input(data01)
 
-#while True:
-#    tok = flecha.lexer.token()
-#    if not tok:
-#        break  # No more input
-#    print (tok)
+while True:
+    tok = flecha.lexer.token()
+    if not tok:
+        break  # No more input
+    print (tok)
 
 program = flecha.yacc.parse(data01)
 
