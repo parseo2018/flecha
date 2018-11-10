@@ -198,8 +198,8 @@ class Flecha(Parser):
         p[0] = p[1]
 
     def p_apply_expression(self, p):
-        ''' apply_expression : atomic_expression '''
-                             #| apply_atomic_expression '''
+        ''' apply_expression : atomic_expression
+                             | apply_atomic_expression '''
         p[0] = p[1]
 
     def p_atomic_expression(self, p):
@@ -242,9 +242,9 @@ class Flecha(Parser):
     #    ''' paren_atomic : LPAREN expression RPAREN'''
     #    p[0] = ParenAtomicExpression(p[2])
 
-    #def p_apply_atomic_expression(self, p):
-        #''' empty_program : '''#apply_expression atomic_expression '''
-        #p[0] = AppyAtomicExpression(p[1], p[2])
+    def p_apply_atomic_expression(self, p):
+        ''' apply_atomic_expression : apply_expression atomic_expression '''
+        p[0] = AppyAtomicExpression(children=[str(p[1]), p[2]])
 
     #def p_binary_expression(self, p):
         #''' binary_expression : '''#inner_expression binary_op inner_expression '''
