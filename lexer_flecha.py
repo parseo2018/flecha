@@ -203,8 +203,8 @@ class Flecha(Parser):
         p[0] = p[1]
 
     def p_atomic_expression(self, p):
-        ''' atomic_expression : non_paren_atomic'''
-                              #| paren_atomic '''
+        ''' atomic_expression : non_paren_atomic
+                              | paren_atomic '''
         p[0] = p[1]
 
     def p_non_paren_atomic(self, p):
@@ -238,13 +238,13 @@ class Flecha(Parser):
         '''    
         p[0] = ExpressionAtomic("ExprConstructor", p[1])
 
-    #def p_paren_atomic(self, p):
-    #    ''' paren_atomic : LPAREN expression RPAREN'''
-    #    p[0] = ParenAtomicExpression(p[2])
+    def p_paren_atomic(self, p):
+        ''' paren_atomic : LPAREN expression RPAREN'''
+        p[0] = p[2]
 
     def p_apply_atomic_expression(self, p):
         ''' apply_atomic_expression : apply_expression atomic_expression '''
-        p[0] = AppyAtomicExpression(children=[str(p[1]), p[2]])
+        p[0] = AppyAtomicExpression(children=[p[1], p[2]])
 
     #def p_binary_expression(self, p):
         #''' binary_expression : '''#inner_expression binary_op inner_expression '''
@@ -362,9 +362,10 @@ def arbolBinario =
       (Bin z Nil Nil)
 def natural = S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S O)))))))))))))))))))
 '''
+#def lista123    = Cons 1 (Cons 2 (Cons 3 Nil))
 
 flecha = Flecha()
-flecha.lexer.input(data02)
+flecha.lexer.input(data04)
 
 while True:
     tok = flecha.lexer.token()
@@ -372,7 +373,7 @@ while True:
         break  # No more input
     print (tok)
 
-program = flecha.yacc.parse(data02)
+program = flecha.yacc.parse(data04)
 
 print("------------------------------- AST from input program ------------------------------- ")
 print(program)
