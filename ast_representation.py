@@ -38,7 +38,7 @@ class Definition(Node):
 		return self
 
 	def __str__(self, level=0):
-		ret = " "*level+ "[" +str(self.typeNode) + ", \"" + self.children[0] + "\","
+		ret = " "*level+ "[\"" +str(self.typeNode) + "\", \"" + self.children[0] + "\", \n"
 		ret += self.children[1].__str__(level+1)
 		ret += " "*level+ "] \n"
 		return ret
@@ -47,3 +47,8 @@ class ExpressionAtomic(Node):
 
   def __init__(self, name, leaf):
     Node.__init__(self, name, [], leaf)	  
+
+  def __str__(self, level=0):
+  	ret = " "*level+ "[\"" +str(self.typeNode) + "\", "
+  	ret = ret + (self.leaf if self.leaf.isnumeric() else "\"" + self.leaf + "\"")
+  	return ret
