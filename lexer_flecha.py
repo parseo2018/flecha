@@ -210,7 +210,8 @@ class Flecha(Parser):
     def p_non_paren_atomic(self, p):
         ''' non_paren_atomic : char_expression
                              | number_expression
-                             | lower_id_expression'''
+                             | lower_id_expression
+                             | upper_id_expression '''
         p[0] = p[1]
 
 
@@ -231,6 +232,11 @@ class Flecha(Parser):
         ''' lower_id_expression : LOWERID
         '''    
         p[0] = ExpressionAtomic("ExprVar", p[1])
+
+    def p_upper_id_expression(self, p):
+        ''' upper_id_expression : UPPERID
+        '''    
+        p[0] = ExpressionAtomic("ExprConstructor", p[1])
 
     #def p_paren_atomic(self, p):
     #    ''' paren_atomic : LPAREN expression RPAREN'''
@@ -300,13 +306,50 @@ data02 = \
     '''
     def a = 'a' def z = 'z' def a_ = 'A' def z_ = 'z'
 def cero = '0' def nueve = '9' def espacio = ' ' def tab = '\t'
-def cr = '\r' def lf = '\n' def comilla = '\'' def doble_comilla = '\"'
+def cr = '\r' def lf = '\n' 
 def contrabarra = '\\' def igual = '=' def lparen = '(' def rparen = ')'
 -- Caracteres
 '''
 
+#Queda pendiente comillas y doble comillas
+#def comilla = '\'' def doble_comilla = '\"'
+
+
+data03 = \
+'''
+-- Constructores
+def a=A
+def b=    Foo
+def c        =Bar
+def camelCase = CamelCase_
+def camelCase_ = CamelCase__
+def camelCase__ = CamelCase___
+def camelCase___ = A
+def x1=    X2
+def x2=X3
+def x3 = X1
+def z = Abcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjABC_DE_baabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghiFGH_I_J_K_L_Mwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkj
+def abcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjABC_DE_baabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghiFGH_I_J_K_L_Mwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkj = Y
+'''
+
+data04 = \
+'''
+-- Estructuras
+def lista_vacia = Nil
+def lista1      = Cons 1 lista_vacia
+def lista123    = Cons 1 (Cons 2 (Cons 3 Nil))
+def listaABC    = Cons 'a' (Cons 'b' (Cons 'c' Nil))
+def listaStrings =
+  Cons "" (Cons "a" (Cons "ab" (Cons "abc" Nil)))
+def arbolBinario =
+  Bin x
+      (Bin y Nil Nil)
+      (Bin z Nil Nil)
+def natural = S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S O)))))))))))))))))))
+'''
+
 flecha = Flecha()
-flecha.lexer.input(data02)
+flecha.lexer.input(data04)
 
 while True:
     tok = flecha.lexer.token()
@@ -314,7 +357,7 @@ while True:
         break  # No more input
     print (tok)
 
-program = flecha.yacc.parse(data02)
+program = flecha.yacc.parse(data04)
 
 print("------------------------------- AST from input program ------------------------------- ")
 print(program)
