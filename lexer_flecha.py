@@ -209,8 +209,8 @@ class Flecha(Parser):
 
     def p_non_paren_atomic(self, p):
         ''' non_paren_atomic : char_expression
-                             | number_expression'''
-                             #| lower_id_expression
+                             | number_expression
+                             | lower_id_expression'''
         p[0] = p[1]
 
 
@@ -227,10 +227,10 @@ class Flecha(Parser):
         '''    
         p[0] = ExpressionAtomic("ExprNumber", str(p[1]))
 
-    #def P_lower_id_expression(self, p):
-    #    ''' lower_id_expression : LOWERID
-    #    '''    
-    #    p[0] = ExpressionAtomic(p[1], p[1])
+    def p_lower_id_expression(self, p):
+        ''' lower_id_expression : LOWERID
+        '''    
+        p[0] = ExpressionAtomic("ExprVar", p[1])
 
     #def p_paren_atomic(self, p):
     #    ''' paren_atomic : LPAREN expression RPAREN'''
@@ -280,6 +280,23 @@ data = \
 '''
 
 data01 = \
+        '''
+    -- Variables
+def a=a
+def b=    foo
+def c        =bar
+def camelCase = camelCase_
+def camelCase_ = camelCase__
+def camelCase__ = camelCase___
+def camelCase___ = a
+def x1=    x2
+def x2=x3
+def x3 = x1
+def z = abcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjABC_DE_baabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghiFGH_I_J_K_L_Mwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkj
+def abcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjABC_DE_baabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghiFGH_I_J_K_L_Mwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkj = y
+'''
+
+data02 = \
     '''
     def a = 'a' def z = 'z' def a_ = 'A' def z_ = 'z'
 def cero = '0' def nueve = '9' def espacio = ' ' def tab = '\t'
@@ -289,7 +306,7 @@ def contrabarra = '\\' def igual = '=' def lparen = '(' def rparen = ')'
 '''
 
 flecha = Flecha()
-flecha.lexer.input(data01)
+flecha.lexer.input(data02)
 
 while True:
     tok = flecha.lexer.token()
@@ -297,7 +314,7 @@ while True:
         break  # No more input
     print (tok)
 
-program = flecha.yacc.parse(data01)
+program = flecha.yacc.parse(data02)
 
 print("------------------------------- AST from input program ------------------------------- ")
 print(program)
