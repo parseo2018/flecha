@@ -209,19 +209,33 @@ class Flecha(Parser):
 
     def p_non_paren_atomic(self, p):
         ''' non_paren_atomic : char_expression
+                             | string_expression
                              | number_expression
                              | lower_id_expression
                              | upper_id_expression '''
         p[0] = p[1]
 
+    def get_char_ord(self, char):
+        return str(ord(char)) if char != '' else char
 
     def p_char_expression(self, p):
         ''' char_expression : CHAR
         '''
-        p[1] = str(ord(p[1])) if p[1] != '' else p[1]
+        p[1] = self.get_char_ord(p[1])
 
         p[0] = ExpressionAtomic("ExprChar", p[1])
 
+    def p_string_expression(self, p):
+        ''' string_expression : STRING
+        '''
+        if p[1]:
+            next_char = p[1][0]
+            sub = AppyAtomicExpression(children=[ExpressionAtomic("ExprConstructor", "Cons"), ExpressionAtomic("ExprChar", self.get_char_ord(next_char))])
+            p[1] = p[1][1:]
+            p[0] = AppyAtomicExpression(children=[sub,self.p_string_expression(p)])
+        else:
+            p[0] = ExpressionAtomic("ExprConstructor", "Nil")
+        return p[0]
 
     def p_number_expression(self, p):
         ''' number_expression : NUMBER
@@ -364,8 +378,84 @@ def natural = S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S O)))))))))))))))))))
 '''
 #def lista123    = Cons 1 (Cons 2 (Cons 3 Nil))
 
+data05= '''
+-- Strings
+def vacio = ""
+def a = "a"
+def abc = "abc"
+def z = "z"
+def a_ = "A"
+def z_ = "Z"
+def cero = "0"
+def cero_cero = "00"
+def cero_cero_cero = "000"
+def nueve = "9"
+def espacio = " "
+def tab = "\t"
+def cr = "\r"
+def lf = "\n"
+def comilla = "\'"
+def doble_comilla = "\""
+def contrabarra = "\\"
+def contrabarra_n = "\\n"
+def igual = "="
+def lparen = "("
+def rparen = ")"
+def no_es_comentario = "hola -- esto no es un comentario"
+def no_es_definicion = "def basura = 7 -- no es parte del programa"
+def hola_mundo = "hola mundo\n"
+def hola_mundo_escapado = "print \"hola mundo\\n\""
+def contrabarras = "\\\\\\\\"
+def espacios = "                                "
+def b_vacio = " "
+def b_a = " a"
+def b_abc = " abc"
+def b_z = " z"
+def b_a_ = " A"
+def b_z_ = " Z"
+def b_cero = " 0"
+def b_cero_cero = " 00"
+def b_cero_cero_cero = " 000"
+def b_nueve = " 9"
+def b_espacio = "  "
+def b_tab = " \t"
+def b_cr = " \r"
+def b_lf = " \n"
+def b_comilla = " \'"
+def b_doble_comilla = " \""
+def b_contrabarra = " \\"
+def b_contrabarra_n = " \\n"
+def b_igual = " ="
+def b_lparen = " ("
+def b_rparen = " )"
+def c_vacio = "  "
+def c_a = " a "
+def c_abc = " abc "
+def c_z = " z "
+def c_a_ = " A "
+def c_z_ = " Z "
+def c_cero = " 0 "
+def c_cero_cero = " 00 "
+def c_cero_cero_cero = " 000 "
+def c_nueve = " 9 "
+def c_espacio = "   "
+def c_tab = " \t "
+def c_cr = " \r "
+def c_lf = " \n "
+def c_comilla = " \' "
+def c_doble_comilla = " \" "
+def c_contrabarra = " \\ "
+def c_contrabarra_n = " \\n "
+def c_igual = " = "
+def c_lparen = " ( "
+def c_rparen = " ) "
+def larga = "abcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcba""
+'''
+
+datas = [data, data01, data02, data03, data04, data05]
+
 flecha = Flecha()
-flecha.lexer.input(data04)
+flecha.lexer.input(data05)
 
 while True:
     tok = flecha.lexer.token()
@@ -373,7 +463,13 @@ while True:
         break  # No more input
     print (tok)
 
-program = flecha.yacc.parse(data04)
+program = flecha.yacc.parse(data05)
+#for data in datas:
+#    print("------------------------------- AST from input program ------------------------------- ")
+#    program = flecha.yacc.parse(data)
+#    print(program)
+#    print("--------------------------------------------------------------------------------------")
+
 
 print("------------------------------- AST from input program ------------------------------- ")
 print(program)
