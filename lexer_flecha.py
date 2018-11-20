@@ -166,8 +166,8 @@ class Flecha(Parser):
     #    p[0] = SecuenceExpression(p[1], p[3])
 
     def p_outer_expression(self, p):
-        ''' outer_expression : inner_expression'''
-                             #| case_expression
+        ''' outer_expression : inner_expression
+                             | case_expression'''
                              #| let_expression
                              #| lamba_expression
                              #|  if_expression'''
@@ -179,8 +179,22 @@ class Flecha(Parser):
         #p[0] = IfExpression(p[2], p[4], p[5])
 
     def p_case_expression(self, p):
-        ''' case_expression : '''#CASE inner_expression branch_case '''
-        #p[0] = CaseExpression(p[2], p[3])
+        ''' case_expression : CASE inner_expression branches_case '''
+        p[0] = CaseExpression(p[2], p[3])
+
+    def p_branches_case(self, p):
+        '''branches_case : empty_branch
+                         | non_empty_branch
+        '''
+        p[0] = p[1]
+
+    def p_non_empty_branch(self, p):
+        '''non_empty_branch : branch_case branches_case '''
+        pass
+
+    def p_branch_case(self, p):
+        '''branch_case : PIPE UPPERID parameters ARROW inner_expression '''
+        pass
 
     def p_let_expression(self, p):    
         ''' let_expression : '''#LET LOWERID params DEFEQ inner_expression IN outer_expression '''
@@ -192,9 +206,9 @@ class Flecha(Parser):
         p[0] = LambdaExpression(p[2], p[4])
 
     def p_inner_expression(self, p):
-        ''' inner_expression : apply_expression'''
-                             #| binary_expression
-                             #| unary_expression '''
+        ''' inner_expression : apply_expression
+                             | binary_expression
+                             | unary_expression '''
         p[0] = p[1]
 
     def p_apply_expression(self, p):
@@ -260,13 +274,35 @@ class Flecha(Parser):
         ''' apply_atomic_expression : apply_expression atomic_expression '''
         p[0] = AppyAtomicExpression(children=[p[1], p[2]])
 
-    #def p_binary_expression(self, p):
-        #''' binary_expression : '''#inner_expression binary_op inner_expression '''
-        #p[0] = BinaryExpression(p[1], p[2], p[3])
+    def p_binary_expression(self, p):
+        ''' binary_expression : inner_expression binary_op inner_expression '''
+        p[0] = BinaryExpression(p[1], p[2], p[3])
 
-    #def p_unary_expression(self, p):
-        #''' unary_expression : '''#unary_op inner_expression'''
-        #p[0] = UnaryExpression(p[1], p[2]) 
+    def p_binary_op(self, p):
+        '''binary_op : AND
+                     | OR
+                     | EQ
+                     | NE
+                     | GE
+                     | LE
+                     | GT
+                     | LT
+                     | PLUS
+                     | MINUS
+                     | TIMES
+                     | DIV
+                     | MOD
+                     '''
+        p[0] = p[1]
+
+    def p_unary_expression(self, p):
+        ''' unary_expression : unary_op inner_expression'''
+        p[0] = UnaryExpression(p[1], p[2])
+
+    def p_unary_op(self, p):
+        '''unary_op : NOT
+                    | MINUS'''
+        p[0] = p[1]
 
     def t_newline(self, t):
         r'''\n+'''
