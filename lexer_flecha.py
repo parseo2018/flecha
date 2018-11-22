@@ -144,17 +144,17 @@ class Flecha(Parser):
 
     def p_empty_params(self, p):
         ''' empty_params : '''#empty '''
-        #p[0] = Parameters(children=[])
+        p[0] = []
 
     def p_params(self, p):
-        ''' params : '''#empty_params 
-                   #| not_empty_params
-        #'''
-        #p[0] = p[1]
+        ''' params : empty_params 
+                   | not_empty_params
+        '''
+        p[0] = p[1]
 
     def p_not_empty_params(self, p):
-        ''' not_empty_params : '''#LOWERID params '''
-        #p[0] = Parameters() p[2].push(p[1])
+        ''' not_empty_params : LOWERID params '''
+        p[0] = [p[1]] + p[2]
 
     def p_expression(self, p):
         ''' expression : outer_expression'''
@@ -180,7 +180,7 @@ class Flecha(Parser):
 
     def p_case_expression(self, p):
         ''' case_expression : CASE inner_expression branches_case '''
-        p[0] = CaseExpression(p[2], p[3])
+        p[0] = CaseExpression(children = [p[2]] + [p[3]])
 
     def p_branches_case(self, p):
         '''branches_case : empty_branch
@@ -188,13 +188,17 @@ class Flecha(Parser):
         '''
         p[0] = p[1]
 
+    def p_empty_branch(self, p):
+        '''empty_branch : '''
+        p[0] = [CaseBranch()]
+
     def p_non_empty_branch(self, p):
         '''non_empty_branch : branch_case branches_case '''
-        pass
+        p[0] = [p[1]] + p[2]
 
     def p_branch_case(self, p):
-        '''branch_case : PIPE UPPERID parameters ARROW inner_expression '''
-        pass
+        '''branch_case : PIPE UPPERID params ARROW inner_expression '''
+        p[0] = CaseBranch(children = [p[2]] + p[3] + [p[5]])
 
     def p_let_expression(self, p):    
         ''' let_expression : '''#LET LOWERID params DEFEQ inner_expression IN outer_expression '''
@@ -276,7 +280,8 @@ class Flecha(Parser):
 
     def p_binary_expression(self, p):
         ''' binary_expression : inner_expression binary_op inner_expression '''
-        p[0] = BinaryExpression(p[1], p[2], p[3])
+        subExpr = AppyAtomicExpression(children=[p[1], p[2]])
+        p[0] = AppyAtomicExpression(children=[subExpr, p[3]])
 
     def p_binary_op(self, p):
         '''binary_op : AND
@@ -293,16 +298,16 @@ class Flecha(Parser):
                      | DIV
                      | MOD
                      '''
-        p[0] = p[1]
+        p[0] = ExpressionAtomic("ExprVar", p[1])
 
     def p_unary_expression(self, p):
         ''' unary_expression : unary_op inner_expression'''
-        p[0] = UnaryExpression(p[1], p[2])
+        p[0] = AppyAtomicExpression(children=[p[2], p[1]])
 
     def p_unary_op(self, p):
         '''unary_op : NOT
                     | MINUS'''
-        p[0] = p[1]
+        p[0] = ExpressionAtomic("ExprVar", p[1])
 
     def t_newline(self, t):
         r'''\n+'''
@@ -488,10 +493,19 @@ def c_rparen = " ) "
 def larga = "abcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcba""
 '''
 
-datas = [data, data01, data02, data03, data04, data05]
+data06 = '''
+-- Case
+
+def t1 = case x -- Case vacio
+def t2 = case x
+         | True  -> a
+         | False -> b
+'''
+
+datas = [data, data01, data02, data03, data04, data05, data06]
 
 flecha = Flecha()
-flecha.lexer.input(data05)
+flecha.lexer.input(data06)
 
 while True:
     tok = flecha.lexer.token()
@@ -499,7 +513,7 @@ while True:
         break  # No more input
     print (tok)
 
-program = flecha.yacc.parse(data05)
+program = flecha.yacc.parse(data06)
 #for data in datas:
 #    print("------------------------------- AST from input program ------------------------------- ")
 #    program = flecha.yacc.parse(data)

@@ -44,23 +44,54 @@ class Definition(Node):
 		return ret
 
 class ExpressionAtomic(Node):
+	
+	def __init__(self, name, leaf):
+		Node.__init__(self, name, [], leaf)
 
-  def __init__(self, name, leaf):
-    Node.__init__(self, name, [], leaf)	  
-
-  def __str__(self, level=0):
-  	ret = " "*level+ "[\"" +str(self.typeNode) + "\", "
-  	ret = ret + (self.leaf if self.leaf.isnumeric() else "\"" + self.leaf + "\"") + "]"
-  	return ret
+	def __str__(self, level=0):
+		ret = " "*level+ "[\"" +str(self.typeNode) + "\", "
+		ret = ret + (self.leaf if self.leaf.isnumeric() else "\"" + self.leaf + "\"") + "]"
+		return ret
 
 class AppyAtomicExpression(Node):
 
-  def __init__(self, children=[], leaf=None):
-    Node.__init__(self, 'ExprApply', children, leaf)
+	def __init__(self, children=[], leaf=None):
+		Node.__init__(self, 'ExprApply', children, leaf)
 
-  def __str__(self, level=0):
-    ret = " "*level+ "[\"" +str(self.typeNode) + "\"\n"
-    ret += self.children[0].__str__(level+1) + ", \n"
-    ret += self.children[1].__str__(level+1)
-    ret += "\n" + " "*level+ "]"
-    return ret		
+	def __str__(self, level=0):
+		ret = " "*level+ "[\"" +str(self.typeNode) + "\"\n"
+		ret += self.children[0].__str__(level+1) + ", \n"
+		ret += self.children[1].__str__(level+1)
+		ret += "\n" + " "*level+ "]"
+		return ret
+
+class CaseBranch(Node):
+
+	def __init__(self, children=[], leaf=None):
+		Node.__init__(self, 'CaseBranch', children, leaf)
+
+	def __str__(self, level=0):
+		if self.children:
+			ret = " "*level+ "[\"" +str(self.typeNode)
+			ret += self.children[0].__str__(level+1) + ", ["
+			for child in self.children[1]:
+				ret += child + ", "
+			ret += "]\n"
+			ret += self.children[3].__str__(level+1)
+			ret += "\n" + " "*level+ "]"
+		else:
+			ret = " "*level+ "[]"
+		return ret
+
+class CaseExpression(Node):
+
+	def __init__(self, children=[], leaf=None):
+		Node.__init__(self, 'ExprCase', children, leaf)
+
+	def __str__(self, level=0):
+		ret = " "*level+ "[\"" +str(self.typeNode) + "\"\n"
+		ret += self.children[0].__str__(level+1) + ", \n"
+		for child in self.children[1]:
+			ret += child.__str__(level+1)
+		ret += "\n" + " "*level+ "]"
+		return ret
