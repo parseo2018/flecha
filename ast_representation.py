@@ -73,11 +73,11 @@ class CaseBranch(Node):
 	def __str__(self, level=0):
 		if self.children:
 			ret = " "*level+ "[\"" +str(self.typeNode)
-			ret += self.children[0].__str__(level+1) + ", ["
+			ret += self.children[0] + ", ["
 			for child in self.children[1]:
 				ret += child + ", "
 			ret += "]\n"
-			ret += self.children[3].__str__(level+1)
+			ret += self.children[2].__str__(level+1)
 			ret += "\n" + " "*level+ "]"
 		else:
 			ret = " "*level+ "[]"
@@ -94,4 +94,16 @@ class CaseExpression(Node):
 		for child in self.children[1]:
 			ret += child.__str__(level+1)
 		ret += "\n" + " "*level+ "]"
+		return ret
+
+class Parameters(Node):
+
+	def __init__(self, children=[]):
+		Node.__init__(self, '', children, None)
+
+	def __str__(self, level=0):
+		ret = " "*level+ "[\""
+		for p in self.children:
+			ret += p	
+		ret += "]"
 		return ret

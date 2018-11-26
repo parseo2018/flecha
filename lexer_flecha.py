@@ -198,7 +198,7 @@ class Flecha(Parser):
 
     def p_branch_case(self, p):
         '''branch_case : PIPE UPPERID params ARROW inner_expression '''
-        p[0] = CaseBranch(children = [p[2]] + p[3] + [p[5]])
+        p[0] = CaseBranch(children = [p[2]] + [p[3]] + [p[5]])
 
     def p_let_expression(self, p):    
         ''' let_expression : '''#LET LOWERID params DEFEQ inner_expression IN outer_expression '''
