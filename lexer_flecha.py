@@ -167,16 +167,29 @@ class Flecha(Parser):
 
     def p_outer_expression(self, p):
         ''' outer_expression : inner_expression
-                             | case_expression'''
+                             | case_expression
+                             |  if_expression'''
                              #| let_expression
-                             #| lamba_expression
-                             #|  if_expression'''
+                             #| lamba_expression'''
         p[0] = p[1]
 
 
     def p_if_expression(self, p):
-        ''' if_expression : '''#IF inner_expression THEN inner_expression branch_else '''
-        #p[0] = IfExpression(p[2], p[4], p[5])
+        ''' if_expression : IF inner_expression THEN inner_expression branch_else '''
+        p[0] = IfExpression(p[2], p[4], p[5])
+
+    def p_branch_else(self, p):
+        ''' branch_else : elif_expression
+                        | else_expression '''
+        p[0] = p[1]
+
+    def p_elif_expression(self, p):
+        '''elif_expression : ELIF inner_expression THEN branch_else'''
+        p[0] = "algo"
+
+    def p_else_expression(self, p):
+        '''else_expression : ELSE inner_expression'''
+        p[0] = "algo"
 
     def p_case_expression(self, p):
         ''' case_expression : CASE inner_expression branches_case '''
