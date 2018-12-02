@@ -16,7 +16,7 @@ class Node:
 		ret = ret + ", " + self.leaf if self.children == [] else ret
 		for child in self.children:
 			ret += child.__str__(level+1)
-		ret += " "*level+ "] \n"
+		ret += " "*level+ "]\n"
 		return ret
 
 class Program(Node):
@@ -40,7 +40,7 @@ class Definition(Node):
 	def __str__(self, level=0):
 		ret = " "*level+ "[\"" +str(self.typeNode) + "\", \"" + self.children[0] + "\", \n"
 		ret += self.children[1].__str__(level+1)
-		ret += "\n" + " "*level+ "] \n"
+		ret += "\n" + " "*level+ "]\n"
 		return ret
 
 class ExpressionAtomic(Node):
@@ -71,16 +71,15 @@ class CaseBranch(Node):
 		Node.__init__(self, 'CaseBranch', children, leaf)
 
 	def __str__(self, level=0):
-		if self.children:
-			ret = " "*level+ "[\"" +str(self.typeNode)
-			ret += self.children[0] + ", ["
-			for child in self.children[1]:
-				ret += child + ", "
-			ret += "]\n"
-			ret += self.children[2].__str__(level+1)
-			ret += "\n" + " "*level+ "]"
-		else:
-			ret = " "*level+ "[]"
+		ret = " "*level+ "[\"" +str(self.typeNode) + "\" , "
+		ret += "\"" + self.children[0] + "\", ["
+		if self.children[1]:
+			ret += self.children[1][0]
+			for child in self.children[1][1:]:
+				ret += "," + child
+		ret += "],\n"
+		ret += self.children[2].__str__(level+1) + "\n"
+		ret += " "*level+ "]"
 		return ret
 
 class CaseExpression(Node):
@@ -90,10 +89,16 @@ class CaseExpression(Node):
 
 	def __str__(self, level=0):
 		ret = " "*level+ "[\"" +str(self.typeNode) + "\"\n"
-		ret += self.children[0].__str__(level+1) + ", \n"
-		for child in self.children[1]:
-			ret += child.__str__(level+1)
-		ret += "\n" + " "*level+ "]"
+		ret += self.children[0].__str__(level+1) + ",\n"
+		ret += " "*(level+1)+ "["
+		if self.children[1]:
+			ret += "\n" + self.children[1][0].__str__(level+2)
+			for child in self.children[1][1:]:
+				ret += ",\n" + child.__str__(level+2)
+			ret += "\n" + " "*(level+1)+ "]" + "\n"
+		else:
+			ret += "]\n"
+		ret += " "*level+ "]"
 		return ret
 
 class Parameters(Node):
