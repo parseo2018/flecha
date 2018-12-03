@@ -143,7 +143,7 @@ class Flecha(Parser):
     # ******************* Params *******************
 
     def p_empty_params(self, p):
-        ''' empty_params : '''#empty '''
+        ''' empty_params : '''
         p[0] = []
 
     def p_params(self, p):
@@ -175,8 +175,8 @@ class Flecha(Parser):
 
 
     def p_if_expression(self, p):
-        ''' if_expression : IF inner_expression THEN inner_expression branch_else '''
-        p[0] = IfExpression(p[2], p[4], p[5])
+        ''' if_expression : IF inner_expression THEN inner_expression branch_else '''        
+        p[0] = CaseExpression(children=[p[2]] + [[CaseBranch(children = ["True"] + [[]] + [p[4]])]+[p[5]]])
 
     def p_branch_else(self, p):
         ''' branch_else : elif_expression
@@ -184,12 +184,14 @@ class Flecha(Parser):
         p[0] = p[1]
 
     def p_elif_expression(self, p):
-        '''elif_expression : ELIF inner_expression THEN branch_else'''
-        p[0] = "algo"
+        '''elif_expression : ELIF inner_expression THEN inner_expression branch_else'''
+        p[0] = CaseBranch(children = ["False"] + [[]] + [ CaseExpression(children=[p[2]] + [[CaseBranch(children = ["True"] + [[]] + [p[4]])]+[p[5]]]) ])
+
+        CaseExpression(children=[p[2]] + [[CaseBranch(children = ["False"] + [[]] + [p[4]])]])
 
     def p_else_expression(self, p):
         '''else_expression : ELSE inner_expression'''
-        p[0] = "algo"
+        p[0] = CaseBranch(children = ["False"] + [[]] + [p[2]])
 
     def p_case_expression(self, p):
         ''' case_expression : CASE inner_expression branches_case '''
@@ -587,10 +589,59 @@ def t17 = case x
 
 '''
 
-datas = [data, data01, data02, data03, data04, data05, data06]
+data07 = '''
+-- If
+
+def t1 = if x then y else z
+def t2 = if x1 then y1 elif x2 then y2 else z
+def t3 = if x1 then y1
+         elif x2 then y2
+         elif x3 then y3
+         else z
+def t4 = if x1 then y1
+         elif x2 then y2
+         elif x3 then y3
+         elif x4 then y4
+         else z
+def t5 = if X1 then Y1
+         elif X2 then Y2
+         elif X3 then Y3
+         elif X4 then Y4
+         else Z
+def t6 = if 1 then 2
+         elif 3 then 4
+         elif 5 then 6
+         elif 7 then 8
+         else 9
+def t7 = if 'a' then 'b'
+         elif 'c' then 'd'
+         elif 'e' then 'f'
+         elif 'g' then 'h'
+         else 'i'
+def t8 = if "X1" then "Y1"
+         elif "X2" then "Y2"
+         elif "X3" then "Y3"
+         elif "X4" then "Y4"
+         else "Z"
+def t9 = if (if x1 then 1 else X1)
+         then (if x2 then 2 else '2')
+         elif (if x3 then 3 else "3")
+         then (if x4 then 4 else X4)
+         elif (if x5 then 5 else '5')
+         then (if x6 then 6 else "6")
+         elif (if x7 then 7 else X7)
+         then (if x8 then 8 else '8')
+         else (if x9 then 9 else "9")
+def t10 = if (if (if x then y else z) then y else z) then y else z
+def t11 = if x then (if x then (if x then y else z) else z) else z
+def t12 = if x then y else (if x then y else (if x then y else z))
+
+'''
+
+datas = [data, data01, data02, data03, data04, data05, data06, data07]
 
 flecha = Flecha()
-flecha.lexer.input(data06)
+flecha.lexer.input(data07)
 
 while True:
     tok = flecha.lexer.token()
@@ -598,7 +649,7 @@ while True:
         break  # No more input
     print (tok)
 
-program = flecha.yacc.parse(data06)
+program = flecha.yacc.parse(data07)
 #for data in datas:
 #    print("------------------------------- AST from input program ------------------------------- ")
 #    program = flecha.yacc.parse(data)
