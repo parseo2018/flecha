@@ -168,9 +168,9 @@ class Flecha(Parser):
     def p_outer_expression(self, p):
         ''' outer_expression : inner_expression
                              | case_expression
-                             |  if_expression'''
-                             #| let_expression
-                             #| lamba_expression'''
+                             | if_expression
+                             | lambda_expression'''
+                             #| let_expression'''
         p[0] = p[1]
 
 
@@ -638,10 +638,57 @@ def t12 = if x then y else (if x then y else (if x then y else z))
 
 '''
 
-datas = [data, data01, data02, data03, data04, data05, data06, data07]
+data08 = '''
+-- Aplicacion
+
+def t1 = a b
+def t2 = a b c
+def t3 = a b c d
+def t4 = A b
+def t5 = A b c
+def t6 = A b c d
+def t6 = a B
+def t7 = a B C
+def t8 = a B C D
+def t9 = A B
+def t10 = A B C
+def t11 = A B C D
+def t12 = a (b (c d e f) (g h i j) (k l m n))
+            (o (p q r s) (t u v w) (x y z A))
+            (B (C D E F) (G H I J) (K L M N))
+            (O (P Q R S) (T U V W) (X Y Z))
+def t13=a(b(c d e f)(g h i j)(k l m n))(o(p q r s)(t u v w)(x y
+z A))(B(C D E F)(G H I J)(K L M N))(O(P Q R S)(T U V W)(X Y Z))
+def t14=((((((((((((((((((((a))))))))))))))))))))
+def t15=f 1 2 3 4 5 6 7 8 9 10
+def t15=((f 1) (2) (3) 4) 5 6 7 8 9 10
+def t15=f 'a' 'b' 'c' 'd' 'e' 'f' 'g' 'h' 'i' 'l'
+def t15=f (g 'a' 'b' 1 2) (g 'a' 'b' 1 2) (g 'a' 'b' 1 2) (g 'a' 'b' 1 2)
+def t16= Bin 1
+           (Bin 2
+             (Bin 3 Nil Nil)
+             (Bin 4 Nil Nil))
+           (Bin 5
+             (Bin 6 Nil Nil)
+             (Bin 7 Nil Nil))
+'''
+
+data09 = '''
+-- Declaraciones locales
+
+def t1 = let x = y in z
+def t2 = let x=y in z
+def t3 = let x1 = y1 in
+         let x2 = y2 in
+         let x3 = y3
+           in z
+
+'''
+
+datas = [data, data01, data02, data03, data04, data05, data06, data07, data08, data09]
 
 flecha = Flecha()
-flecha.lexer.input(data07)
+flecha.lexer.input(data09)
 
 while True:
     tok = flecha.lexer.token()
@@ -649,7 +696,7 @@ while True:
         break  # No more input
     print (tok)
 
-program = flecha.yacc.parse(data07)
+program = flecha.yacc.parse(data09)
 #for data in datas:
 #    print("------------------------------- AST from input program ------------------------------- ")
 #    program = flecha.yacc.parse(data)
@@ -659,4 +706,3 @@ program = flecha.yacc.parse(data07)
 
 print("------------------------------- AST from input program ------------------------------- ")
 print(program)
-			
