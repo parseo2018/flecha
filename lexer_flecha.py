@@ -169,8 +169,8 @@ class Flecha(Parser):
         ''' outer_expression : inner_expression
                              | case_expression
                              | if_expression
-                             | lambda_expression'''
-                             #| let_expression'''
+                             | lambda_expression
+                             | let_expression'''
         p[0] = p[1]
 
 
@@ -216,19 +216,20 @@ class Flecha(Parser):
         p[0] = CaseBranch(children = [p[2]] + [p[3]] + [p[5]])
 
     def p_let_expression(self, p):    
-        ''' let_expression : '''#LET LOWERID params DEFEQ inner_expression IN outer_expression '''
-        #p[0] = LetExpression(p[2], p[3], p[5], p[7])
+        ''' let_expression : LET LOWERID params DEFEQ inner_expression IN outer_expression '''
+        count_params = len(p[3])
+        if count_params >= 1:
+            lamdaParameter = LambdaExpression(children=[p[3], p[5]])
+        elif count_params == 0:
+            lamdaParameter = p[5]
+        p[0] = LetExpression(children=[p[2], lamdaParameter, p[7]])
 
     def p_lambda_expression(self, p):    
         ''' lambda_expression : LAMBDA params ARROW outer_expression                  
         '''
         count_params = len(p[2])
-        if count_params > 1:
-            next_param = p[2][0]
-            p[2] = p[2][1:]
-            p[0] = LambdaExpression(children=[next_param, self.p_lambda_expression(p)])
-        elif count_params == 1:
-            p[0] = LambdaExpression(children=[p[2][0], p[4]])
+        if count_params >= 1:
+            p[0] = LambdaExpression(children=[p[2], p[4]])
         elif count_params == 0:
             p[0] = p[4]
         return p[0]
@@ -712,10 +713,54 @@ def t19 = \\ x y z -> a b c
 
 '''
 
-datas = [data, data01, data02, data03, data04, data05, data06, data07, data08, data09]
+data10 = '''
+-- Declaraciones locales
+
+def t1 = let x = y in z
+def t2 = let x=y in z
+def t3 = let x1 = y1 in
+         let x2 = y2 in
+         let x3 = y3
+           in z
+def t4 = let f x = x in f a
+def t5 = let f x y = y in f a b
+def t6 = let f x y z = z in f a b c
+def t7 = let f x y z = z in
+         let g h = h a b c in
+           g f
+def t8 = let f x y z = A in
+         let g h = B in
+         let x = C in
+           D
+def t8 = let f x y z = 1 in
+         let g h = 2 in
+         let x = 3 in
+           4
+def t9 = let f x y z = 'a' in
+         let g h = 'b' in
+         let x = 'c' in
+           'd'
+def t10 = let f x y z = "a" in
+          let g h = "b" in
+          let x = "c" in
+            "d"
+def t11 = let f x y z = (let x = y in z) in
+          let g h =
+               (let x1 = y1 in
+                        let x2 = y2 in
+                        let x3 = y3
+                          in z) in
+          let x = (let f x y z = z in
+                   let g h = h a b c in
+                       g f) in
+            "d"
+
+'''
+
+datas = [data, data01, data02, data03, data04, data05, data06, data07, data08, data09, data10]
 
 flecha = Flecha()
-flecha.lexer.input(data09)
+flecha.lexer.input(data10)
 
 while True:
     tok = flecha.lexer.token()
@@ -723,7 +768,7 @@ while True:
         break  # No more input
     print (tok)
 
-program = flecha.yacc.parse(data09)
+program = flecha.yacc.parse(data10)
 #for data in datas:
 #    print("------------------------------- AST from input program ------------------------------- ")
 #    program = flecha.yacc.parse(data)
