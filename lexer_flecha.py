@@ -222,7 +222,16 @@ class Flecha(Parser):
     def p_lambda_expression(self, p):    
         ''' lambda_expression : LAMBDA params ARROW outer_expression                  
         '''
-        p[0] = LambdaExpression(p[2], p[4])
+        count_params = len(p[2])
+        if count_params > 1:
+            next_param = p[2][0]
+            p[2] = p[2][1:]
+            p[0] = LambdaExpression(children=[next_param, self.p_lambda_expression(p)])
+        elif count_params == 1:
+            p[0] = LambdaExpression(children=[p[2][0], p[4]])
+        elif count_params == 0:
+            p[0] = p[4]
+        return p[0]
 
     def p_inner_expression(self, p):
         ''' inner_expression : apply_expression
@@ -674,14 +683,32 @@ def t16= Bin 1
 '''
 
 data09 = '''
--- Declaraciones locales
+-- Funciones anonimas
 
-def t1 = let x = y in z
-def t2 = let x=y in z
-def t3 = let x1 = y1 in
-         let x2 = y2 in
-         let x3 = y3
-           in z
+def t1 = \\ x -> x
+def t2=\\x->x
+def t3=\\x->
+--
+x
+def t4 = \\ x y -> y
+def t5 = \\ x y z -> z
+def t6 = \\ x -> \\ y z -> z
+def t7 = \\ x y z -> \\ a b c -> \\ d e f -> d
+def t8 = \\ x y z -> \\ a b c -> \\ d e f -> F
+def t9 = \\ x y z -> \\ a b c -> \\ d e f -> 1
+def t10 = \\ x y z -> \\ a b c -> \\ d e f -> 'a'
+def t11 = \\ x y z -> \\ a b c ->
+          \\ x1 y1 z1 -> \\ a1 b1 c1 ->
+            "aa"
+def t12 = \\ x -> x y z
+def t13 = (\\ x -> x y z)
+def t14 = (\\ x -> x y) z
+def t15 = (\\ x -> x) y z
+def t16 = \\ x -> x y (z)
+def t17 = \\ x -> x (y z)
+def t18 = \\ -> v -- lambda vacia
+def t19 = \\ x y z -> a b c
+
 
 '''
 
