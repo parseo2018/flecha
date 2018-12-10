@@ -157,20 +157,20 @@ class Flecha(Parser):
         p[0] = [p[1]] + p[2]
 
     def p_expression(self, p):
-        ''' expression : outer_expression'''
-                       #| secuence_expression '''           
+        ''' expression : outer_expression
+                       | secuence_expression '''           
         p[0] = p[1]
 
-    #def p_secuence_expression(self, p):
-    #    ''' secuence_expression : secuence_expression SEMICOLON expression '''
-    #    p[0] = SecuenceExpression(p[1], p[3])
+    def p_secuence_expression(self, p):
+        ''' secuence_expression : outer_expression SEMICOLON expression '''
+        p[0] = LetExpression(children=["_", p[1], p[3]])
 
     def p_outer_expression(self, p):
         ''' outer_expression : inner_expression
                              | case_expression
                              | if_expression
                              | lambda_expression
-                             | let_expression'''
+                             | let_expression '''
         p[0] = p[1]
 
 
@@ -757,10 +757,47 @@ def t11 = let f x y z = (let x = y in z) in
 
 '''
 
-datas = [data, data01, data02, data03, data04, data05, data06, data07, data08, data09, data10]
+data11 = '''
+-- Secuenciación
+
+def t1 = a ; b
+
+def t2 = a ; b ; c
+
+def t3 = (a ; b) ; c
+
+def t4 = a ; (b ; c)
+
+def t5 = a1;a2;a3;a4;a5;a6;a7;a8;a9;a10
+
+def t6 = 1 ; 'a' ; A ; a
+
+def t7 = print "a\n" ;
+         print "b\n" ;
+         print "c\n"
+
+def t8 = if x1 then y1 else z1 ; 
+         if x2 then y2 else z2 ;
+         if x3 then y3 else z3
+
+def t9 = case x1 ; 
+         case x2 | A1 -> a1 | B1 -> b2 ; 
+         case x3 | B1 -> b1 | B2 -> b2 | B3 -> b3
+
+def t10 = let x1 = y1 in z1;let x2 = y2 in z2 ;
+          let x3 = y3 in z3
+
+def t11 = \\ x1 -> y1 z1 ;
+          \\ x2 -> y2 z2 ;
+          \\ x3 -> y3 z3
+
+def t12 = a b (c d ; e f) ; g h i ; j k l
+'''
+
+datas = [data, data01, data02, data03, data04, data05, data06, data07, data08, data09, data10, data11]
 
 flecha = Flecha()
-flecha.lexer.input(data10)
+flecha.lexer.input(data11)
 
 while True:
     tok = flecha.lexer.token()
@@ -768,7 +805,7 @@ while True:
         break  # No more input
     print (tok)
 
-program = flecha.yacc.parse(data10)
+program = flecha.yacc.parse(data11)
 #for data in datas:
 #    print("------------------------------- AST from input program ------------------------------- ")
 #    program = flecha.yacc.parse(data)
