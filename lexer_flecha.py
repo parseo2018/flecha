@@ -108,7 +108,7 @@ class Flecha(Parser):
     	('left','PLUS', 'MINUS'),
     	('left','TIMES'),
     	('left','DIV', 'MOD'),
-    	#('right', 'UMINUS')
+    	('right', 'UMINUS')
     )
 
     # ******************* Program *******************
@@ -305,34 +305,94 @@ class Flecha(Parser):
 
     def p_binary_expression(self, p):
         ''' binary_expression : inner_expression binary_op inner_expression '''
-        subExpr = AppyAtomicExpression(children=[p[1], p[2]])
+        subExpr = AppyAtomicExpression(children=[p[2], p[1]])
         p[0] = AppyAtomicExpression(children=[subExpr, p[3]])
 
     def p_binary_op(self, p):
-        '''binary_op : AND
-                     | OR
-                     | EQ
-                     | NE
-                     | GE
-                     | LE
-                     | GT
-                     | LT
-                     | PLUS
-                     | MINUS
-                     | TIMES
-                     | DIV
-                     | MOD
+        '''binary_op : and_op
+                     | or_op
+                     | eq_op
+                     | ne_op
+                     | ge_op
+                     | le_op
+                     | gt_op
+                     | lt_op
+                     | plus_op
+                     | minus_op
+                     | times_op
+                     | div_op
+                     | mod_op
                      '''
-        p[0] = ExpressionAtomic("ExprVar", p[1])
+        p[0] = p[1]
+
+    def p_and_op(self, p):
+        '''and_op : AND'''
+        p[0] = ExpressionAtomic("ExprVar", "AND")
+
+    def p_or_op(self, p):
+        '''or_op : OR'''
+        p[0] = ExpressionAtomic("ExprVar", "OR")
+
+    def p_eq_op(self, p):
+        '''eq_op : EQ'''
+        p[0] = ExpressionAtomic("ExprVar", "EQ")
+
+    def p_ne_op(self, p):
+        '''ne_op : NE'''
+        p[0] = ExpressionAtomic("ExprVar", "NE")
+
+    def p_ge_op(self, p):
+        '''ge_op : GE'''
+        p[0] = ExpressionAtomic("ExprVar", "GE")
+
+    def p_le_op(self, p):
+        '''le_op : LE'''
+        p[0] = ExpressionAtomic("ExprVar", "LE")
+
+    def p_gt_op(self, p):
+        '''gt_op : GT'''
+        p[0] = ExpressionAtomic("ExprVar", "GT")
+
+    def p_lt_op(self, p):
+        '''lt_op : LT'''
+        p[0] = ExpressionAtomic("ExprVar", "LT")
+
+    def p_plus_op(self, p):
+        '''plus_op : PLUS'''
+        p[0] = ExpressionAtomic("ExprVar", "ADD")
+
+    def p_minus_op(self, p):
+        '''minus_op : MINUS'''
+        p[0] = ExpressionAtomic("ExprVar", "SUB")
+
+    def p_times_op(self, p):
+        '''times_op : TIMES'''
+        p[0] = ExpressionAtomic("ExprVar", "MUL")
+
+    def p_div_op(self, p):
+        '''div_op : DIV'''
+        p[0] = ExpressionAtomic("ExprVar", "DIV")
+
+    def p_mod_op(self, p):
+        '''mod_op : MOD'''
+        p[0] = ExpressionAtomic("ExprVar", "MOD")
 
     def p_unary_expression(self, p):
         ''' unary_expression : unary_op inner_expression'''
-        p[0] = AppyAtomicExpression(children=[p[2], p[1]])
+        p[0] = AppyAtomicExpression(children=[p[1], p[2]])
 
     def p_unary_op(self, p):
-        '''unary_op : NOT
-                    | MINUS'''
-        p[0] = ExpressionAtomic("ExprVar", p[1])
+        '''unary_op : not_op
+                    | uminus_op'''
+        p[0] = p[1]
+
+    def p_not_op(self, p):
+        '''not_op : NOT'''
+        p[0] = ExpressionAtomic("ExprVar", "NOT")
+
+    def p_uminus_op(self, p):
+        '''uminus_op : MINUS %prec UMINUS'''
+        p[0] = ExpressionAtomic("ExprVar", "UMINUS")
 
     def t_newline(self, t):
         r'''\n+'''
@@ -915,10 +975,31 @@ def t22 = \\ x -> (a ; b ; c)
 
 '''
 
-datas = [data, data01, data02, data03, data04, data05, data06, data07, data08, data09, data10, data11, data12]
+data13 = '''
+-- Operadores
+
+def t1 = a || b
+def t2 = a && b
+def t3 = ! a
+def t4 = a == b
+def t5 = a != b
+def t6 = a >= b
+def t7 = a <= b
+def t8 = a > b
+def t9 = a < b
+def t10 = a + b
+def t11 = a - b
+def t12 = a * b
+def t13 = a / b
+def t14 = a % b
+def t15 = - a
+
+'''
+
+datas = [data, data01, data02, data03, data04, data05, data06, data07, data08, data09, data10, data11, data12, data13]
 
 flecha = Flecha()
-flecha.lexer.input(data12)
+flecha.lexer.input(data13)
 
 while True:
     tok = flecha.lexer.token()
@@ -926,7 +1007,7 @@ while True:
         break  # No more input
     print (tok)
 
-program = flecha.yacc.parse(data12)
+program = flecha.yacc.parse(data13)
 #for data in datas:
 #    print("------------------------------- AST from input program ------------------------------- ")
 #    program = flecha.yacc.parse(data)
