@@ -108,7 +108,7 @@ class Flecha(Parser):
     	('left','PLUS', 'MINUS'),
     	('left','TIMES'),
     	('left','DIV', 'MOD'),
-    	('right', 'UMINUS')
+    	('right', 'UMINUS'),
     )
 
     # ******************* Program *******************
@@ -996,10 +996,35 @@ def t15 = - a
 
 '''
 
-datas = [data, data01, data02, data03, data04, data05, data06, data07, data08, data09, data10, data11, data12, data13]
+data14 = '''
+-- Asociatividad
+
+def t1=a||b||c||d
+def t2=a&&b&&c&&d
+def t3=!!!!!a
+def t4=a+b+c+d
+def t5=a-b-c-d
+def t6=a+b-c+d-e+f
+def t7=a*b*c*d
+def t8=a/b/c/d
+def t9=a%b%c%d
+def t10=a/b%c/d%e/f
+def t9=- - - -a
+def it1=a||(b||(c||d))
+def it2=a&&(b&&(c&&d))
+def it4=a+(b+(c+d))
+def it5=a-(b-(c-d))
+def it6=a+(b-(c+(d-(e+f))))
+def it7=a*(b*(c*d))
+def it8=a/(b/(c/d))
+def it9=a%(b%(c%d))
+def it10=a/(b%(c/(d%(e/f))))
+'''
+
+datas = [data, data01, data02, data03, data04, data05, data06, data07, data08, data09, data10, data11, data12, data13, data14]
 
 flecha = Flecha()
-flecha.lexer.input(data13)
+flecha.lexer.input(data14)
 
 while True:
     tok = flecha.lexer.token()
@@ -1007,7 +1032,7 @@ while True:
         break  # No more input
     print (tok)
 
-program = flecha.yacc.parse(data13)
+program = flecha.yacc.parse(data14)
 #for data in datas:
 #    print("------------------------------- AST from input program ------------------------------- ")
 #    program = flecha.yacc.parse(data)
