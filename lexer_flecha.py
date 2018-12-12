@@ -1050,10 +1050,31 @@ def it9=a%(b%(c%d))
 def it10=a/(b%(c/(d%(e/f))))
 '''
 
-datas = [data, data01, data02, data03, data04, data05, data06, data07, data08, data09, data10, data11, data12, data13, data14]
+data15 = '''
+-- Anidamiento operadores/aplicación
+
+def t1 = f a b || g c d
+def t2 = f a b && g c d
+def t3 = ! f a b
+def t4 = f a b == g c d
+def t5 = f a b != g c d
+def t6 = f a b >= g c d
+def t7 = f a b <= g c d
+def t8 = f a b > g c d
+def t9 = f a b < g c d
+def t10 = f a b + g c d
+def t11 = f a b - g c d
+def t12 = f a b * g c d
+def t13 = f a b / g c d
+def t14 = f a b % g c d
+def t15 = - f a b
+
+'''
+
+datas = [data, data01, data02, data03, data04, data05, data06, data07, data08, data09, data10, data11, data12, data13, data14, data15]
 
 flecha = Flecha()
-flecha.lexer.input(data14)
+flecha.lexer.input(data15)
 
 while True:
     tok = flecha.lexer.token()
@@ -1061,7 +1082,7 @@ while True:
         break  # No more input
     print (tok)
 
-program = flecha.yacc.parse(data14)
+program = flecha.yacc.parse(data15)
 #for data in datas:
 #    print("------------------------------- AST from input program ------------------------------- ")
 #    program = flecha.yacc.parse(data)
