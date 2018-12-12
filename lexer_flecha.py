@@ -304,10 +304,39 @@ class Flecha(Parser):
         p[0] = AppyAtomicExpression(children=[p[1], p[2]])
 
     def p_binary_expression(self, p):
-        ''' binary_expression : inner_expression binary_op inner_expression '''
-        subExpr = AppyAtomicExpression(children=[p[2], p[1]])
+        ''' binary_expression : inner_expression AND inner_expression
+                              | inner_expression OR inner_expression
+                              | inner_expression EQ inner_expression
+                              | inner_expression NE inner_expression
+                              | inner_expression GE inner_expression
+                              | inner_expression LE inner_expression
+                              | inner_expression GT inner_expression
+                              | inner_expression LT inner_expression
+                              | inner_expression PLUS inner_expression
+                              | inner_expression MINUS inner_expression
+                              | inner_expression TIMES inner_expression
+                              | inner_expression DIV inner_expression
+                              | inner_expression MOD inner_expression '''
+        typeBinaryOp = None
+        if p[2] == '&&' : typeBinaryOp = "AND"
+        elif p[2] == '||': typeBinaryOp = "OR"
+        elif p[2] == '==': typeBinaryOp = "EQ"
+        elif p[2] == '!=': typeBinaryOp = "NE"
+        elif p[2] == '>=': typeBinaryOp = "GE"
+        elif p[2] == '<=': typeBinaryOp = "LE"
+        elif p[2] == '>': typeBinaryOp = "GT"
+        elif p[2] == '<': typeBinaryOp = "LT"
+        elif p[2] == '+': typeBinaryOp = "ADD"
+        elif p[2] == '-': typeBinaryOp = "SUB"
+        elif p[2] == '*': typeBinaryOp = "MUL"
+        elif p[2] == '/': typeBinaryOp = "DIV"
+        elif p[2] == '%': typeBinaryOp = "MOD"
+        subExpr = AppyAtomicExpression(children=[ExpressionAtomic("ExprVar", typeBinaryOp), p[1]])
         p[0] = AppyAtomicExpression(children=[subExpr, p[3]])
 
+    """
+    #ply yacc me obliga a escribir el codigo explicitamente como esta arriba para poder resolver la asociatividad expresada en 'precedence'.
+    #si lo escribo como esta abajo por alguna razon no se da cuenta y la asociatividad es la defecto.
     def p_binary_op(self, p):
         '''binary_op : and_op
                      | or_op
@@ -376,7 +405,7 @@ class Flecha(Parser):
     def p_mod_op(self, p):
         '''mod_op : MOD'''
         p[0] = ExpressionAtomic("ExprVar", "MOD")
-
+    """
     def p_unary_expression(self, p):
         ''' unary_expression : unary_op inner_expression'''
         p[0] = AppyAtomicExpression(children=[p[1], p[2]])
