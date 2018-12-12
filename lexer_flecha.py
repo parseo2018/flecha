@@ -335,8 +335,8 @@ class Flecha(Parser):
         p[0] = AppyAtomicExpression(children=[subExpr, p[3]])
 
     """
-    #ply yacc me obliga a escribir el codigo explicitamente como esta arriba para poder resolver la asociatividad expresada en 'precedence'.
-    #si lo escribo como esta abajo por alguna razon no se da cuenta y la asociatividad es la defecto.
+    #ply yacc me obliga a escribir el codigo explicitamente como esta arriba para poder resolver la asociatividad y precedencia expresada en 'precedence'.
+    #si lo escribo como esta abajo por alguna razon no se da cuenta y la asociatividad y precedencia es la defecto.
     def p_binary_op(self, p):
         '''binary_op : and_op
                      | or_op
@@ -407,9 +407,16 @@ class Flecha(Parser):
         p[0] = ExpressionAtomic("ExprVar", "MOD")
     """
     def p_unary_expression(self, p):
-        ''' unary_expression : unary_op inner_expression'''
-        p[0] = AppyAtomicExpression(children=[p[1], p[2]])
+        ''' unary_expression : NOT inner_expression
+                             | MINUS inner_expression %prec UMINUS '''
+        typeUnaryOp = None
+        if p[1] == '!' : typeUnaryOp = "NOT"
+        elif p[1] == '-': typeUnaryOp = "UMINUS"
+        p[0] = AppyAtomicExpression(children=[ExpressionAtomic("ExprVar", typeUnaryOp), p[2]])
 
+    """
+    #ply yacc me obliga a escribir el codigo explicitamente como esta arriba para poder resolver la asociatividad y precedencia expresada en 'precedence'.
+    #si lo escribo como esta abajo por alguna razon no se da cuenta y la asociatividad y precedencia es la defecto.
     def p_unary_op(self, p):
         '''unary_op : not_op
                     | uminus_op'''
@@ -422,6 +429,7 @@ class Flecha(Parser):
     def p_uminus_op(self, p):
         '''uminus_op : MINUS %prec UMINUS'''
         p[0] = ExpressionAtomic("ExprVar", "UMINUS")
+    """
 
     def t_newline(self, t):
         r'''\n+'''
@@ -1071,10 +1079,34 @@ def t15 = - f a b
 
 '''
 
-datas = [data, data01, data02, data03, data04, data05, data06, data07, data08, data09, data10, data11, data12, data13, data14, data15]
+data16 = '''
+-- Precedencia
+
+def t1 = -a a % -0 / -A % -'a' * -b b % -1 / -B % -'b' -
+         -c c % -2 / -C % -'c' * -d d % -3 / -D % -'d' +
+         -e e % -4 / -E % -'e' * -f f % -5 / -F % -'f' -
+         -g g % -6 / -G % -'g' * -h h % -7 / -H % -'h'
+def t2 = -a%0/'a'*'A'-A a1 a2+a A1 A2==-b%0/'b'*'B'-B b1 b2+b B1 B2
+def t3 = -a%0/'a'*'A'-A a1 a2+a A1 A2!=-b%0/'b'*'B'-B b1 b2+b B1 B2
+def t4 = -a%0/'a'*'A'-A a1 a2+a A1 A2>=-b%0/'b'*'B'-B b1 b2+b B1 B2
+def t5 = -a%0/'a'*'A'-A a1 a2+a A1 A2<=-b%0/'b'*'B'-B b1 b2+b B1 B2
+def t6 = -a%0/'a'*'A'-A a1 a2+a A1 A2>-b%0/'b'*'B'-B b1 b2+b B1 B2
+def t7 = -a%0/'a'*'A'-A a1 a2+a A1 A2<-b%0/'b'*'B'-B b1 b2+b B1 B2
+def t8 = !-a%0/'a'*'A'-A a1 a2+a A1 A2==-b%0/'b'*'B'-B b1 b2+b B1 B2&&
+         !-c%0/'c'*'C'-C c1 c2+c C1 C2!=-d%0/'d'*'D'-D d1 d2+d D1 D2||
+         !-e%0/'e'*'E'-E e1 e2+e E1 E2>=-f%0/'f'*'F'-F f1 f2+f F1 F2&&
+         !-g%0/'g'*'G'-G g1 g2+g G1 G2<=-h%0/'h'*'H'-H h1 h2+h H1 H2||
+         !-i%0/'i'*'I'-I i1 i2+i I1 I2>-j%0/'j'*'J'-J j1 j2+j J1 J2&&
+         !-k%0/'k'*'K'-K k1 k2+k K1 K2<-l%0/'l'*'L'-L l1 l2+l L1 L2
+def t9=-(a;b)
+def t10=-(a && b)
+def t11=(a == b)*((a != b)+(a < b))*((a <= b)-(a >= b))*(a>b)
+'''
+
+datas = [data, data01, data02, data03, data04, data05, data06, data07, data08, data09, data10, data11, data12, data13, data14, data15, data16]
 
 flecha = Flecha()
-flecha.lexer.input(data15)
+flecha.lexer.input(data16)
 
 while True:
     tok = flecha.lexer.token()
@@ -1082,7 +1114,7 @@ while True:
         break  # No more input
     print (tok)
 
-program = flecha.yacc.parse(data15)
+program = flecha.yacc.parse(data16)
 #for data in datas:
 #    print("------------------------------- AST from input program ------------------------------- ")
 #    program = flecha.yacc.parse(data)
