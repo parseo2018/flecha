@@ -138,7 +138,7 @@ class Flecha(Parser):
 
     def p_definition_with_params(self, p):
         ''' definition_with_params : DEF LOWERID params DEFEQ expression '''
-        p[0] = Definition(children=p[2] + [LambdaExpression(children=[p[3],p[5]])])
+        p[0] = Definition(children=[p[2]] + [LambdaExpression(children=[p[3],p[5]])])
 
     # ******************* Params *******************
 
@@ -1103,10 +1103,45 @@ def t10=-(a && b)
 def t11=(a == b)*((a != b)+(a < b))*((a <= b)-(a >= b))*(a>b)
 '''
 
-datas = [data, data01, data02, data03, data04, data05, data06, data07, data08, data09, data10, data11, data12, data13, data14, data15, data16]
+data17 = '''
+
+def null list =
+  case list
+  | Nil       -> True
+  | Cons x xs -> False
+
+def head list =
+  case list
+  | Cons x xs -> x
+
+def tail list =
+  case list
+  | Cons x xs -> xs
+
+def take n list =
+  if n == 0 || null list
+   then Nil
+   else Cons (head list) (take (n - 1) (tail list))
+
+def sum list =
+  if null list
+   then 0
+   else head list + tail list
+
+def gen n =
+  if n == 0
+   then Nil
+   else Cons n (gen (n - 1))
+
+def main =
+  sum (gen 100)
+
+'''
+
+datas = [data, data01, data02, data03, data04, data05, data06, data07, data08, data09, data10, data11, data12, data13, data14, data15, data16, data17]
 
 flecha = Flecha()
-flecha.lexer.input(data16)
+flecha.lexer.input(data17)
 
 while True:
     tok = flecha.lexer.token()
@@ -1114,7 +1149,7 @@ while True:
         break  # No more input
     print (tok)
 
-program = flecha.yacc.parse(data16)
+program = flecha.yacc.parse(data17)
 #for data in datas:
 #    print("------------------------------- AST from input program ------------------------------- ")
 #    program = flecha.yacc.parse(data)
