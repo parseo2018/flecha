@@ -6,7 +6,15 @@ import os
 sys.path.insert(0, '../..')
 
 from parser import Parser
-from ast_representation import *
+from ast_representation.program import Program
+from ast_representation.parameters import Parameters
+from ast_representation.apply_atomic_expression import ApplyAtomicExpression
+from ast_representation.case_branch import CaseBranch
+from ast_representation.case_expression import CaseExpression
+from ast_representation.definition import Definition
+from ast_representation.atomic_expression import AtomicExpression
+from ast_representation.lambda_expression import LambdaExpression
+from ast_representation.let_expression import LetExpression
 
 class Flecha(Parser):
 
@@ -21,6 +29,8 @@ class Flecha(Parser):
         'let': 'LET',
         'in': 'IN'
         }
+
+    #literals = ['\\']
 
     tokens = list(reserved.values()) + [
         'DEFEQ','SEMICOLON','LPAREN','RPAREN','LAMBDA','PIPE','ARROW',
@@ -156,10 +166,14 @@ class Flecha(Parser):
         ''' not_empty_params : LOWERID params '''
         p[0] = [p[1]] + p[2]
 
+    # ******************* Expression *******************
+
     def p_expression(self, p):
         ''' expression : outer_expression
                        | secuence_expression '''           
         p[0] = p[1]
+
+    # ******************* SecuenceExpression *******************
 
     def p_secuence_expression(self, p):
         ''' secuence_expression : outer_expression SEMICOLON expression '''
@@ -264,36 +278,37 @@ class Flecha(Parser):
     def p_char_expression(self, p):
         ''' char_expression : CHAR
         '''
+        print(p[1])
         p[1] = self.get_char_ord(p[1])
 
-        p[0] = ExpressionAtomic("ExprChar", p[1])
+        p[0] = AtomicExpression("ExprChar", p[1])
 
     def p_string_expression(self, p):
         ''' string_expression : STRING
         '''
         if p[1]:
             next_char = p[1][0]
-            sub = AppyAtomicExpression(children=[ExpressionAtomic("ExprConstructor", "Cons"), ExpressionAtomic("ExprChar", self.get_char_ord(next_char))])
+            sub = ApplyAtomicExpression(children=[AtomicExpression("ExprConstructor", "Cons"), AtomicExpression("ExprChar", self.get_char_ord(next_char))])
             p[1] = p[1][1:]
-            p[0] = AppyAtomicExpression(children=[sub,self.p_string_expression(p)])
+            p[0] = ApplyAtomicExpression(children=[sub,self.p_string_expression(p)])
         else:
-            p[0] = ExpressionAtomic("ExprConstructor", "Nil")
+            p[0] = AtomicExpression("ExprConstructor", "Nil")
         return p[0]
 
     def p_number_expression(self, p):
         ''' number_expression : NUMBER
         '''    
-        p[0] = ExpressionAtomic("ExprNumber", str(p[1]))
+        p[0] = AtomicExpression("ExprNumber", str(p[1]))
 
     def p_lower_id_expression(self, p):
         ''' lower_id_expression : LOWERID
         '''    
-        p[0] = ExpressionAtomic("ExprVar", p[1])
+        p[0] = AtomicExpression("ExprVar", p[1])
 
     def p_upper_id_expression(self, p):
         ''' upper_id_expression : UPPERID
         '''    
-        p[0] = ExpressionAtomic("ExprConstructor", p[1])
+        p[0] = AtomicExpression("ExprConstructor", p[1])
 
     def p_paren_atomic(self, p):
         ''' paren_atomic : LPAREN expression RPAREN'''
@@ -301,7 +316,7 @@ class Flecha(Parser):
 
     def p_apply_atomic_expression(self, p):
         ''' apply_atomic_expression : apply_expression atomic_expression '''
-        p[0] = AppyAtomicExpression(children=[p[1], p[2]])
+        p[0] = ApplyAtomicExpression(children=[p[1], p[2]])
 
     def p_binary_expression(self, p):
         ''' binary_expression : inner_expression AND inner_expression
@@ -331,8 +346,8 @@ class Flecha(Parser):
         elif p[2] == '*': typeBinaryOp = "MUL"
         elif p[2] == '/': typeBinaryOp = "DIV"
         elif p[2] == '%': typeBinaryOp = "MOD"
-        subExpr = AppyAtomicExpression(children=[ExpressionAtomic("ExprVar", typeBinaryOp), p[1]])
-        p[0] = AppyAtomicExpression(children=[subExpr, p[3]])
+        subExpr = ApplyAtomicExpression(children=[AtomicExpression("ExprVar", typeBinaryOp), p[1]])
+        p[0] = ApplyAtomicExpression(children=[subExpr, p[3]])
 
     """
     #ply yacc me obliga a escribir el codigo explicitamente como esta arriba para poder resolver la asociatividad y precedencia expresada en 'precedence'.
@@ -356,55 +371,55 @@ class Flecha(Parser):
 
     def p_and_op(self, p):
         '''and_op : AND'''
-        p[0] = ExpressionAtomic("ExprVar", "AND")
+        p[0] = AtomicExpression("ExprVar", "AND")
 
     def p_or_op(self, p):
         '''or_op : OR'''
-        p[0] = ExpressionAtomic("ExprVar", "OR")
+        p[0] = AtomicExpression("ExprVar", "OR")
 
     def p_eq_op(self, p):
         '''eq_op : EQ'''
-        p[0] = ExpressionAtomic("ExprVar", "EQ")
+        p[0] = AtomicExpression("ExprVar", "EQ")
 
     def p_ne_op(self, p):
         '''ne_op : NE'''
-        p[0] = ExpressionAtomic("ExprVar", "NE")
+        p[0] = AtomicExpression("ExprVar", "NE")
 
     def p_ge_op(self, p):
         '''ge_op : GE'''
-        p[0] = ExpressionAtomic("ExprVar", "GE")
+        p[0] = AtomicExpression("ExprVar", "GE")
 
     def p_le_op(self, p):
         '''le_op : LE'''
-        p[0] = ExpressionAtomic("ExprVar", "LE")
+        p[0] = AtomicExpression("ExprVar", "LE")
 
     def p_gt_op(self, p):
         '''gt_op : GT'''
-        p[0] = ExpressionAtomic("ExprVar", "GT")
+        p[0] = AtomicExpression("ExprVar", "GT")
 
     def p_lt_op(self, p):
         '''lt_op : LT'''
-        p[0] = ExpressionAtomic("ExprVar", "LT")
+        p[0] = AtomicExpression("ExprVar", "LT")
 
     def p_plus_op(self, p):
         '''plus_op : PLUS'''
-        p[0] = ExpressionAtomic("ExprVar", "ADD")
+        p[0] = AtomicExpression("ExprVar", "ADD")
 
     def p_minus_op(self, p):
         '''minus_op : MINUS'''
-        p[0] = ExpressionAtomic("ExprVar", "SUB")
+        p[0] = AtomicExpression("ExprVar", "SUB")
 
     def p_times_op(self, p):
         '''times_op : TIMES'''
-        p[0] = ExpressionAtomic("ExprVar", "MUL")
+        p[0] = AtomicExpression("ExprVar", "MUL")
 
     def p_div_op(self, p):
         '''div_op : DIV'''
-        p[0] = ExpressionAtomic("ExprVar", "DIV")
+        p[0] = AtomicExpression("ExprVar", "DIV")
 
     def p_mod_op(self, p):
         '''mod_op : MOD'''
-        p[0] = ExpressionAtomic("ExprVar", "MOD")
+        p[0] = AtomicExpression("ExprVar", "MOD")
     """
     def p_unary_expression(self, p):
         ''' unary_expression : NOT inner_expression
@@ -412,7 +427,7 @@ class Flecha(Parser):
         typeUnaryOp = None
         if p[1] == '!' : typeUnaryOp = "NOT"
         elif p[1] == '-': typeUnaryOp = "UMINUS"
-        p[0] = AppyAtomicExpression(children=[ExpressionAtomic("ExprVar", typeUnaryOp), p[2]])
+        p[0] = ApplyAtomicExpression(children=[AtomicExpression("ExprVar", typeUnaryOp), p[2]])
 
     """
     #ply yacc me obliga a escribir el codigo explicitamente como esta arriba para poder resolver la asociatividad y precedencia expresada en 'precedence'.
@@ -424,11 +439,11 @@ class Flecha(Parser):
 
     def p_not_op(self, p):
         '''not_op : NOT'''
-        p[0] = ExpressionAtomic("ExprVar", "NOT")
+        p[0] = AtomicExpression("ExprVar", "NOT")
 
     def p_uminus_op(self, p):
         '''uminus_op : MINUS %prec UMINUS'''
-        p[0] = ExpressionAtomic("ExprVar", "UMINUS")
+        p[0] = AtomicExpression("ExprVar", "UMINUS")
     """
 
     def t_newline(self, t):
@@ -450,6 +465,7 @@ class Flecha(Parser):
         else:
             print ('Syntax error at EOF')
 
+"""
 data = \
     '''
 	-- Numeros
@@ -494,13 +510,13 @@ def z = abcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjABC_DE_ba
 def abcdefghijklmnopqrst01234567899876543210zyxwvutsrqponmlkjABC_DE_baabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghiFGH_I_J_K_L_Mwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkjihgfedcbaabcdefghijklmnopqrstuvwxyz01234567899876543210zyxwvutsrqponmlkj = y
 '''
 
-data02 = \
-    '''
+data02 = '''
     def a = 'a' def z = 'z' def a_ = 'A' def z_ = 'z'
 def cero = '0' def nueve = '9' def espacio = ' ' def tab = '\t'
-def cr = '\r' def lf = '\n' 
+def cr = '\r' def lf = '\n' def comilla = '\'' def doble_comilla = '\"'
 def contrabarra = '\\' def igual = '=' def lparen = '(' def rparen = ')'
 -- Caracteres
+
 '''
 
 #Queda pendiente comillas y doble comillas
@@ -1158,4 +1174,4 @@ program = flecha.yacc.parse(data17)
 
 
 print("------------------------------- AST from input program ------------------------------- ")
-print(program)
+print(program)"""
