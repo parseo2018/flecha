@@ -25,17 +25,13 @@ class Program(Node):
 		Node.__init__(self, '', children, leaf)
 
 	def push(self,child):
-		self.children = [child] + self.children
+		self.children = self.children + [child]
 		return self
 
 class Definition(Node):
 	
 	def __init__(self, children=[], leaf=None):
 		Node.__init__(self, 'Def', children, leaf)
-
-	def push(self,child):
-		self.children = [child] + self.children
-		return self
 
 	def __str__(self, level=0):
 		ret = " "*level+ "[\"" +str(self.typeNode) + "\", \"" + self.children[0] + "\", \n"
