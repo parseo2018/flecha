@@ -6,7 +6,7 @@ from lexer_flecha import Flecha
 if __name__ == "__main__":
 
     if len(sys.argv) != 2:
-        sys.stderr.write('Uso: %s input.flecha\n' % (sys.argv[0],))
+        sys.stderr.write('Error de uso. Ejemplo: %s archivo_input: \n' % (sys.argv[0],))
         sys.exit(1)
 
     flecha = Flecha()
@@ -16,5 +16,11 @@ if __name__ == "__main__":
     data = f.read()
     f.close()
 
+    bare_filename = filename.replace('.input', '') 
+    flecha_filename = bare_filename + '.json'
+    
     program = flecha.yacc.parse(data)
-    print(program)
+
+    f = open(flecha_filename, 'w')
+    f.write(str(program))
+    f.close()

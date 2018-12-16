@@ -11,5 +11,5 @@ class Definition(Node):
 	def __str__(self, level=0):
 		ret = " "*level+ "[\"" +str(self.typeNode) + "\", \"" + self.children[0] + "\", \n"
 		ret += self.children[1].__str__(level+1)
-		ret += "\n" + " "*level+ "]\n"
+		ret += "\n" + " "*level+ "]"
 		return ret

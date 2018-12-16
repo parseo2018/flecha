@@ -14,7 +14,9 @@ class Node:
 	def __str__(self, level=0):
 		ret = " "*level+ "[\n" +str(self.typeNode)
 		ret = ret + ", " + self.leaf if self.children == [] else ret
-		for child in self.children:
-			ret += child.__str__(level+1)
-		ret += " "*level+ "]\n"
+		if self.children:
+			ret += self.children[0].__str__(level+1)
+			for child in self.children[1:]:
+				ret += ",\n" + child.__str__(level+1)
+			ret += " "*level+ "\n]"
 		return ret
