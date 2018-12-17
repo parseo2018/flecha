@@ -30,7 +30,7 @@ class Flecha(Parser):
         'in': 'IN'
         }
 
-    #literals = ['\\']
+    #literals = ['\n']
 
     tokens = list(reserved.values()) + [
         'DEFEQ','SEMICOLON','LPAREN','RPAREN','LAMBDA','PIPE','ARROW',
@@ -273,7 +273,13 @@ class Flecha(Parser):
         p[0] = p[1]
 
     def get_char_ord(self, char):
-        return str(ord(char)) if char != '' else char
+        if char != '':
+            if char[0] == "\\":
+                print(char)
+                char = bytes(char, encoding='ascii')
+                char = char.decode('unicode-escape')
+            char = str(ord(char))
+        return char
 
     def p_char_expression(self, p):
         ''' char_expression : CHAR
@@ -287,9 +293,13 @@ class Flecha(Parser):
         ''' string_expression : STRING
         '''
         if p[1]:
+            index_char = 1
             next_char = p[1][0]
+            if next_char == "\\":
+                index_char = 2
+                next_char = p[1][0:index_char]
             sub = ApplyAtomicExpression(children=[AtomicExpression("ExprConstructor", "Cons"), AtomicExpression("ExprChar", self.get_char_ord(next_char))])
-            p[1] = p[1][1:]
+            p[1] = p[1][index_char:]
             p[0] = ApplyAtomicExpression(children=[sub,self.p_string_expression(p)])
         else:
             p[0] = AtomicExpression("ExprConstructor", "Nil")

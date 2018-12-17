@@ -19,6 +19,14 @@ if __name__ == "__main__":
     bare_filename = filename.replace('.input', '') 
     flecha_filename = bare_filename + '.json'
     
+    flecha.lexer.input(data)
+
+    while True:
+        tok = flecha.lexer.token()
+        if not tok:
+            break  # No more input
+        print (tok)
+
     program = flecha.yacc.parse(data)
 
     f = open(flecha_filename, 'w')
