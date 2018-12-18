@@ -8,7 +8,7 @@ class LetExpression(Node):
 		Node.__init__(self, 'ExprLet', children, leaf)
 
 	def __str__(self, level=0):
-		ret = " "*level+ "[\"" +str(self.typeNode)+", \""+self.children[0]+"\",\n"
+		ret = " "*level+ "[\"" +str(self.typeNode)+"\", \""+self.children[0]+"\",\n"
 		if self.children[1]:
 			ret += self.children[1].__str__(level+1) + ",\n"
 		ret += self.children[2].__str__(level+1) + "\n"

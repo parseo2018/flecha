@@ -83,13 +83,13 @@ class Flecha(Parser):
         return t
 
     def t_CHAR(self, t):
-        r'''(\'(.*?)\')'''
+        r'''(\'[^\'\\]*(?:\\.[^\'\\]*)*\')'''
 
         t.value = t.value[1:-1]
         return t
 
     def t_STRING(self, t):
-        r'''\"(.*?)\"'''
+        r'''(\"[^\"\\]*(?:\\.[^\"\\]*)*\")'''
 
         t.value = t.value[1:-1]
         return t
@@ -275,7 +275,6 @@ class Flecha(Parser):
     def get_char_ord(self, char):
         if char != '':
             if char[0] == "\\":
-                print(char)
                 char = bytes(char, encoding='ascii')
                 char = char.decode('unicode-escape')
             char = str(ord(char))
@@ -284,7 +283,6 @@ class Flecha(Parser):
     def p_char_expression(self, p):
         ''' char_expression : CHAR
         '''
-        print(p[1])
         p[1] = self.get_char_ord(p[1])
 
         p[0] = AtomicExpression("ExprChar", p[1])

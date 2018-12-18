@@ -9,7 +9,7 @@ class CaseBranch(Node):
 		Node.__init__(self, 'CaseBranch', children, leaf)
 
 	def __str__(self, level=0):
-		ret = " "*level+ "[\"" +str(self.typeNode) + "\" , "
+		ret = " "*level+ "[\"" +str(self.typeNode) + "\", "
 		ret += "\"" + self.children[0] + "\", ["
 		if self.children[1]:
 			ret += "\""+self.children[1][0]+"\""
